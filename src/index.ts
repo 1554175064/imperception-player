@@ -172,7 +172,7 @@ class ImperceptionPlayer {
    * @param id 播放器容器id
    * @param options {Ioption}
    */
-  init(id: string, options: IOption) {
+  init(id: string, options?: IOption) {
     if (!id) {
       throw new Error("请输入容器id");
     }
@@ -187,7 +187,7 @@ class ImperceptionPlayer {
     this.video1 = this.createVideo("video1");
     this.video2 = this.createVideo("video2");
     //如果开启了扣绿功能
-    if (options.processOptions.videoGreenCutout) {
+    if (options?.processOptions?.videoGreenCutout) {
       if (detectWebGL()) {
         const processOptions = Object.assign(
           this.processOptions,

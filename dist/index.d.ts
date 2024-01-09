@@ -1,3 +1,11 @@
+interface IOption {
+    onVideoEnded?: (url: string) => void;
+    defaultUrl?: string;
+    processOptions?: {
+        videoGreenCutout: boolean;
+        videoGreenCutoutColor: number | string;
+    };
+}
 declare class ImperceptionPlayer {
     private container;
     private video1;
@@ -19,14 +27,12 @@ declare class ImperceptionPlayer {
     private resetData;
     private createVideo;
     private openVideoGreenCutout;
-    init(id: string, options: {
-        onVideoEnded?: (url: string) => void;
-        defaultUrl?: string;
-        processOptions?: {
-            videoGreenCutout: boolean;
-            videoGreenCutoutColor: number;
-        };
-    }): void;
+    /**
+     *
+     * @param id 播放器容器id
+     * @param options {Ioption}
+     */
+    init(id: string, options?: IOption): void;
     /**
      * 更改音量
      * @param num 音量

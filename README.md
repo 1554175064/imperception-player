@@ -11,7 +11,7 @@
 调用
 
 ```js
-import Recorder from "imperception-player";
+import ImperceptionPlayer from "imperception-player";
 
 const player = new ImperceptionPlayer();
 ```
