@@ -20,6 +20,7 @@ declare class ImperceptionPlayer {
     private videoGreenCutoutContainer;
     private firstPlay;
     private videoShowRes;
+    private userHasInteracted;
     private addVideoStyle;
     private endedFinish;
     private addVideoEvent;
@@ -27,6 +28,7 @@ declare class ImperceptionPlayer {
     private resetData;
     private createVideo;
     private openVideoGreenCutout;
+    private listenerInteraction;
     /**
      *
      * @param id 播放器容器id

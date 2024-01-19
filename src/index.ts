@@ -40,6 +40,7 @@ class ImperceptionPlayer {
   private videoGreenCutoutContainer: HTMLDivElement | null; //扣绿输出容器（会扣绿后输出一张canvas来展示视频画面）
   private firstPlay: boolean = false; //是否首次播放，这个当作扣绿时机，避免首次闪屏
   private videoShowRes: null | ((value?: unknown) => void); //视频实际显示后触发（可能比play事件晚一百毫秒左右，用来兼容移动端）
+  private userHasInteracted = false; //用户是否与浏览器交互过
 
   //给视频标签添加样式和属性
   private addVideoStyle(dom: HTMLVideoElement) {
@@ -112,7 +113,7 @@ class ImperceptionPlayer {
     const canplaythrough = () => {
       video1.play();
       //这行代码是专门兼容阿里系的垃圾浏览器
-      video1.muted = false;
+      if (this.userHasInteracted) video1.muted = false;
       video2.pause();
     };
     video1.addEventListener("canplaythrough", canplaythrough);
@@ -166,6 +167,32 @@ class ImperceptionPlayer {
     this.video1.style.visibility = "hidden";
     this.video2.style.visibility = "hidden";
   }
+  private listenerInteraction() {
+    const events = [
+      "click",
+      "dblclick",
+      "keydown",
+      "keypress",
+      "keyup",
+      "mousedown",
+      "mouseup",
+      "touchend",
+      "touchmove",
+      "touchstart",
+    ];
+    const fn = () => {
+      // 用户触发了一个交互事件，因此将 userHasInteracted 设置为 true
+      this.userHasInteracted = true;
+      // 移除所有事件监听器
+      events.forEach((event) => {
+        window.removeEventListener(event, fn);
+      });
+    };
+    // 为每一个事件添加监听器
+    events.forEach((event) => {
+      window.addEventListener(event, fn);
+    });
+  }
 
   /**
    *
@@ -180,6 +207,7 @@ class ImperceptionPlayer {
     if (!videoContainer) {
       throw new Error("未找到" + id);
     }
+    this.listenerInteraction();
     this.container = videoContainer;
     this.destroy();
     this.defaultUrl = options.defaultUrl;
