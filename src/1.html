@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="./index.js"></script>
+    <script src="../dist/index.js"></script>
     <!-- <script src="./index.js"></script> -->
   </head>
   <body>
@@ -19,6 +19,7 @@
     <button onclick="play()">play</button>
     <button onclick="show()">show</button>
     <button onclick="des()">des</button>
+    <button onclick="test()">test</button>
   </body>
   <script>
     const arr = [
@@ -63,6 +64,10 @@
     };
     const des = () => {
       player.destroy();
+    };
+    const test = () => {
+      player.setVideoAttr("playbackRate", 0.5, true);
+      // console.log(player.playingDom.src, player.playingDom.paused);
     };
   </script>
 </html>
