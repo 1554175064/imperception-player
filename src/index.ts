@@ -133,7 +133,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
           video1.style.visibility = "visible";
           video2.style.visibility = "hidden";
         }
-        if (video1.src !== this.defaultUrl) {
+        if (video1.src !== this.defaultUrl && this.videoShowRes) {
           this.videoShowRes();
         }
       }
