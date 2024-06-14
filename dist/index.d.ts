@@ -15,6 +15,9 @@ interface IOption {
         videoGreenCutoutColor: number | string;
     };
 }
+interface IVideo extends HTMLVideoElement {
+    url?: string;
+}
 declare class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     private container;
     private video1;
@@ -31,12 +34,11 @@ declare class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     private videoShowRes;
     private userHasInteracted;
     private cacheArr;
-    playingDom: null | HTMLVideoElement;
+    playingDom: null | IVideo;
     private addVideoStyle;
     private endedFinish;
     private videoSetUrl;
     private addVideoEvent;
-    private hidden;
     private resetData;
     private createVideo;
     private openVideoGreenCutout;
@@ -83,6 +85,6 @@ declare class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
      * @param isCache 是否对更改属性做缓存，部分属性在播放器地址更改后会被重置，此时如需要保留则设置为true
      * @returns
      */
-    setVideoAttr(attr: T, value: HTMLVideoElement[T], isCache?: boolean): void;
+    setVideoAttr(attr: T, value: IVideo[T], isCache?: boolean): void;
 }
 export default ImperceptionPlayer;

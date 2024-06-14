@@ -37,11 +37,35 @@ function detectWebGL() {
   }
 }
 
+async function urlToBlob(url: string) {
+  try {
+    // 使用fetch获取数据
+    const response = await fetch(url);
+
+    // 检查响应状态
+    if (!response.ok) {
+      throw new Error("Network response was not ok " + response.statusText);
+    }
+
+    // 将响应转换为Blob
+    const blob = await response.blob();
+
+    // 返回Blob对象地址
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error("There has been a problem with your fetch operation:", error);
+  }
+}
+
+interface IVideo extends HTMLVideoElement {
+  url?: string;
+}
+
 class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
   private container: null | HTMLElement; //播放容器
-  private video1: null | HTMLVideoElement; //播放器1
+  private video1: null | IVideo; //播放器1
   private video1Destroy: null | (() => void); //播放器1销毁订阅事件方法
-  private video2: null | HTMLVideoElement; //播放器2
+  private video2: null | IVideo; //播放器2
   private video2Destroy: null | (() => void); //播放器2销毁订阅事件方法
   private onVideoEnded: (url: string) => void | null; //当前播放结束回调（非静默视频）
   private currentIndex = 0; //当前正在播放的播放器标记
@@ -55,11 +79,11 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
   private firstPlay: boolean = true; //是否首次播放，这个当作扣绿时机，避免首次闪屏
   private videoShowRes: null | ((value?: unknown) => void); //视频实际显示后触发（可能比play事件晚一百毫秒左右，用来兼容部分移动端）
   private userHasInteracted = false; //用户是否与浏览器交互过，用来自动播放
-  private cacheArr: [T, HTMLVideoElement[T]][] = [];
-  playingDom: null | HTMLVideoElement; //当前正在播放的dom
+  private cacheArr: [T, IVideo[T]][] = [];
+  playingDom: null | IVideo; //当前正在播放的dom
 
   //给视频标签添加样式和属性
-  private addVideoStyle(dom: HTMLVideoElement) {
+  private addVideoStyle(dom: IVideo) {
     dom.style.position = "absolute";
     dom.style.width = "100%";
     dom.style.height = "100%";
@@ -83,32 +107,36 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     this.onVideoEnded(url);
   }
   //指定播放器切换视频
-  private videoSetUrl(video: HTMLVideoElement, url: string) {
+  private async videoSetUrl(video: IVideo, url: string) {
+    const blobUrl = await urlToBlob(url);
     video.muted = true;
-    video.src = url;
+    video.src = blobUrl;
+    video.url = url;
   }
   //给播放器添加回调
   private addVideoEvent(
-    video1: HTMLVideoElement,
-    video2: HTMLVideoElement,
+    video1: IVideo,
+    video2: IVideo,
     currentvideo1Index: number
   ) {
     //播放结束,如果当前播放默认视频，则重复播放，否则切换视频
     const ended = async () => {
+      console.log("ended");
       if (this.currentIndex !== currentvideo1Index) {
         return;
       }
-      if (video1.src === this.defaultUrl) {
+      if (video1.url === this.defaultUrl) {
         video1.currentTime = 0;
         await video1.play();
       } else {
-        this.endedFinish(video1.src);
+        this.endedFinish(video1.url);
         this.videoSetUrl(video2, this.defaultUrl);
       }
     };
     video1.addEventListener("ended", ended);
     //开始播放,从有时间开始算，否则有部分移动端机器会有两个视频切换闪烁
     const timeupdate = (e: Event) => {
+      console.log("timeupdate");
       if (
         (e.target as unknown as HTMLMediaElement).currentTime > 0 &&
         this.currentIndex !== currentvideo1Index
@@ -133,7 +161,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
           video1.style.visibility = "visible";
           video2.style.visibility = "hidden";
         }
-        if (video1.src !== this.defaultUrl && this.videoShowRes) {
+        if (video1.url !== this.defaultUrl && this.videoShowRes) {
           this.videoShowRes();
         }
       }
@@ -142,14 +170,16 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     video1.addEventListener("timeupdate", timeupdate);
     //视频加载完成，开始播放
     const loadeddata = async () => {
+      console.log("loadeddata");
       await video1.play();
       //这行代码是专门兼容阿里系的垃圾浏览器
       if (this.userHasInteracted) video1.muted = false;
       video2.pause();
     };
-    video1.addEventListener("loadeddata", loadeddata);
+    video1.addEventListener("loadedmetadata", loadeddata);
     //每次加载完元数据挂在缓存的属性
     const loadedmetadata = () => {
+      console.log("loadedmetadata");
       this.cacheArr.forEach((item) => {
         this.video1[item[0]] = item[1];
       });
@@ -161,17 +191,10 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
       //ios播放前不触发canplay和canplaythrough，只有播放后才触发
       //安卓部分老版本chrome不触发progress
       //但是loadeddata作为播放时机可能会有一丢丢卡顿
-      video1.removeEventListener("loadeddata", loadeddata);
+      video1.removeEventListener("loadedmetadata", loadeddata);
       video1.removeEventListener("ended", ended);
       video1.removeEventListener("loadedmetadata", loadedmetadata);
     };
-  }
-  private hidden() {
-    if (!this.video1 || !this.video2) {
-      return;
-    }
-    this.video1.src = this.defaultUrl;
-    this.video2.src = this.defaultUrl;
   }
   //重置数据，销毁订阅事件
   private resetData() {
@@ -194,7 +217,6 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     video.loop = false;
     video.id = id;
     video.muted = true;
-    // video.src = "";
     this.addVideoStyle(video);
     this.container?.appendChild(video);
     return video;
@@ -278,7 +300,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
 
     this.video1Destroy = this.addVideoEvent(this.video1, this.video2, 1);
     this.video2Destroy = this.addVideoEvent(this.video2, this.video1, 2);
-    this.video1.src = this.defaultUrl;
+    this.videoSetUrl(this.video1, this.defaultUrl);
   }
   /**
    * 更改音量
@@ -325,11 +347,9 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
         return;
       }
       if (this.currentIndex === 1) {
-        this.video2.muted = true;
-        this.video2.src = url;
+        this.videoSetUrl(this.video2, url);
       } else {
-        this.video1.muted = true;
-        this.video1.src = url;
+        this.videoSetUrl(this.video1, url);
       }
       this.videoShowRes = res;
     });
@@ -358,7 +378,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
    * @param isCache 是否对更改属性做缓存，部分属性在播放器地址更改后会被重置，此时如需要保留则设置为true
    * @returns
    */
-  setVideoAttr(attr: T, value: HTMLVideoElement[T], isCache: boolean = false) {
+  setVideoAttr(attr: T, value: IVideo[T], isCache: boolean = false) {
     if (!this.video1 || !this.video2) {
       return;
     }
