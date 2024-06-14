@@ -34,6 +34,7 @@ declare class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     private videoShowRes;
     private userHasInteracted;
     private cacheArr;
+    private abortController;
     playingDom: null | IVideo;
     private addVideoStyle;
     private endedFinish;

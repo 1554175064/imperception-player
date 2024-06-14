@@ -28,19 +28,17 @@ function detectWebGL() {
 
   if (gl && gl instanceof WebGLRenderingContext) {
     // WebGL 是受支持的
-    // return "WebGL is supported";
     return true;
   } else {
     // WebGL 不受支持，或者浏览器中禁用了它
-    // return "WebGL is not supported";
     return false;
   }
 }
 
-async function urlToBlob(url: string) {
+async function urlToBlob(url: string, signal: AbortSignal) {
   try {
     // 使用fetch获取数据
-    const response = await fetch(url);
+    const response = await fetch(url, { signal });
 
     // 检查响应状态
     if (!response.ok) {
@@ -53,7 +51,14 @@ async function urlToBlob(url: string) {
     // 返回Blob对象地址
     return URL.createObjectURL(blob);
   } catch (error) {
-    console.error("There has been a problem with your fetch operation:", error);
+    if (error.name === "AbortError") {
+      console.log("Fetch aborted");
+    } else {
+      console.error(
+        "There has been a problem with your fetch operation:",
+        error
+      );
+    }
   }
 }
 
@@ -80,6 +85,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
   private videoShowRes: null | ((value?: unknown) => void); //视频实际显示后触发（可能比play事件晚一百毫秒左右，用来兼容部分移动端）
   private userHasInteracted = false; //用户是否与浏览器交互过，用来自动播放
   private cacheArr: [T, IVideo[T]][] = [];
+  private abortController: AbortController | null = null; // AbortController实例
   playingDom: null | IVideo; //当前正在播放的dom
 
   //给视频标签添加样式和属性
@@ -108,10 +114,18 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
   }
   //指定播放器切换视频
   private async videoSetUrl(video: IVideo, url: string) {
-    const blobUrl = await urlToBlob(url);
-    video.muted = true;
-    video.src = blobUrl;
-    video.url = url;
+    // 如果有未完成的请求，取消它
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+    // 创建新的AbortController实例
+    this.abortController = new AbortController();
+    const blobUrl = await urlToBlob(url, this.abortController.signal);
+    if (blobUrl) {
+      video.muted = true;
+      video.src = blobUrl;
+      video.url = url;
+    }
   }
   //给播放器添加回调
   private addVideoEvent(
@@ -130,7 +144,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
         await video1.play();
       } else {
         this.endedFinish(video1.url);
-        this.videoSetUrl(video2, this.defaultUrl);
+        await this.videoSetUrl(video2, this.defaultUrl);
       }
     };
     video1.addEventListener("ended", ended);
@@ -342,14 +356,14 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
    * @returns 返回Promise代表视频切换并成功显示在屏幕上
    */
   setUrl(url: string) {
-    return new Promise((res) => {
+    return new Promise(async (res) => {
       if (!this.video1 || !this.video2) {
         return;
       }
       if (this.currentIndex === 1) {
-        this.videoSetUrl(this.video2, url);
+        await this.videoSetUrl(this.video2, url);
       } else {
-        this.videoSetUrl(this.video1, url);
+        await this.videoSetUrl(this.video1, url);
       }
       this.videoShowRes = res;
     });
