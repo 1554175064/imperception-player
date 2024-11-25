@@ -13,6 +13,7 @@ interface IOption {
     processOptions?: {
         videoGreenCutout: boolean;
         videoGreenCutoutColor: number | string;
+        pixelRatio: number;
     };
 }
 interface IVideo extends HTMLVideoElement {

@@ -18,6 +18,7 @@ interface IOption {
   processOptions?: {
     videoGreenCutout: boolean;
     videoGreenCutoutColor: number | string;
+    pixelRatio: number
   };
 }
 function detectWebGL() {
@@ -78,6 +79,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
   private processOptions = {
     videoGreenCutout: false, // 是否开启扣绿，需要支持webgl，部分移动端浏览器不支持（如uc、夸克等阿里系浏览器）
     videoGreenCutoutColor: 0x00ff00, //要扣绿的颜色
+    pixelRatio: 1,//画布分辨率比例
   };
   private videoProcessing: null | ProcessingVideo; //视频处理实例
   private videoGreenCutoutContainer: HTMLDivElement | null; //扣绿输出容器（会扣绿后输出一张canvas来展示视频画面）
@@ -160,7 +162,8 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
           this.videoProcessing.initVideoScene(
             this.video1.id,
             this.videoGreenCutoutContainer.id,
-            this.processOptions.videoGreenCutoutColor
+            this.processOptions.videoGreenCutoutColor,
+            this.processOptions.pixelRatio
           );
         }
         this.currentIndex = currentvideo1Index;
@@ -222,7 +225,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     this.currentIndex = 0;
     this.defaultUrl = "";
     this.firstPlay = true;
-    this.onVideoEnded = () => {};
+    this.onVideoEnded = () => { };
     this.playingDom = null;
   }
   //创建视频播放器

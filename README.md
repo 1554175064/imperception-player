@@ -36,6 +36,8 @@ interface IOption {
     videoGreenCutout: boolean;
     //视频扣绿颜色
     videoGreenCutoutColor: number | string;
+    //扣绿后画板分辨率倍率（适当调整，过高会有问题）
+    pixelRatio: number
   };
 }
 

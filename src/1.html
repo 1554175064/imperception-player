@@ -1,73 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <script src="../dist/index.js"></script>
-    <!-- <script src="./index.js"></script> -->
-  </head>
-  <body>
-    <div
-      id="player"
-      style="width: 180px; height: 320px; position: relative"
-    ></div>
-    <button onclick="init()">init</button>
-    <button onclick="set()">setUrl</button>
-    <button onclick="set2()">setUrl2</button>
-    <button onclick="pause()">pause</button>
-    <button onclick="play()">play</button>
-    <button onclick="show()">show</button>
-    <button onclick="des()">des</button>
-    <button onclick="test()">test</button>
-  </body>
-  <script>
-    const arr = [
-      "https://metagc-cdn.aminer.cn/3dcreator/cb1f6ddc365b11eeaa76dfefc31bc2c5a9.mp4",
-      "https://metagc-cdn.aminer.cn/3dcreator/84e9c77c365f11ee920edfefc36aa9e86.mp4",
-      "https://metagc-cdn.aminer.cn/3dcreator/ae191bfa365f11ee94a2dfefc3389f94e0.mp4",
-    ];
-    const player = new ImperceptionPlayer();
-    const init = async () => {
-      await player.init("player", {
-        defaultUrl:
-          "https://metagc-cdn.aminer.cn/3dcreator/6e86ecc5408911ee9c86dfefc38dee4d6.mp4",
-        onVideoEnded: (url) => {
-          console.log("ended:" + url);
-        },
-        processOptions: {
-          videoGreenCutout: true,
-          videoGreenCutoutColor: "#0000ff",
-        },
-      });
-      //   player.setUrl(arr[0]);
-    };
-    const set = () => {
-      player.setUrl(arr[1]).then((res) => {
-        console.log(arr[1], "finish");
-      });
-    };
-    const set2 = () => {
-      player.setUrl(arr[2]);
-    };
-    // const setvol
-    const pause = () => {
-      player.pause();
-      // document.getElementById("player").style.display = "none";
-    };
-    const play = () => {
-      player.play();
-    };
 
-    const show = () => {
-      document.getElementById("player").style.display = "block";
-    };
-    const des = () => {
-      player.destroy();
-    };
-    const test = () => {
-      player.setVideoAttr("playbackRate", 0.5, true);
-      // console.log(player.playingDom.src, player.playingDom.paused);
-    };
-  </script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="../dist/index.js"></script>
+  <!-- <script src="./index.js"></script> -->
+</head>
+
+<body>
+  <div id="player" style="width: 180px; height: 320px; position: relative"></div>
+  <button onclick="init()">init</button>
+  <button onclick="set()">setUrl</button>
+  <button onclick="set2()">setUrl2</button>
+  <button onclick="pause()">pause</button>
+  <button onclick="play()">play</button>
+  <button onclick="show()">show</button>
+  <button onclick="des()">des</button>
+  <button onclick="test()">test</button>
+</body>
+<script>
+  const arr = [
+    "https://metagc-cdn.aminer.cn/3dcreator/cb1f6ddc365b11eeaa76dfefc31bc2c5a9.mp4",
+    "https://metagc-cdn.aminer.cn/3dcreator/84e9c77c365f11ee920edfefc36aa9e86.mp4",
+    "https://metagc-cdn.aminer.cn/3dcreator/ae191bfa365f11ee94a2dfefc3389f94e0.mp4",
+  ];
+  const player = new ImperceptionPlayer();
+  const init = async () => {
+    await player.init("player", {
+      defaultUrl:
+        "https://metagc-cdn.aminer.cn/3dcreator/6e86ecc5408911ee9c86dfefc38dee4d6.mp4",
+      onVideoEnded: (url) => {
+        console.log("ended:" + url);
+      },
+      processOptions: {
+        videoGreenCutout: true,
+        videoGreenCutoutColor: "#0000ff",
+        pixelRatio: 1
+      },
+    });
+    //   player.setUrl(arr[0]);
+  };
+  const set = () => {
+    player.setUrl(arr[1]).then((res) => {
+      console.log(arr[1], "finish");
+    });
+  };
+  const set2 = () => {
+    player.setUrl(arr[2]);
+  };
+  // const setvol
+  const pause = () => {
+    player.pause();
+    // document.getElementById("player").style.display = "none";
+  };
+  const play = () => {
+    player.play();
+  };
+
+  const show = () => {
+    document.getElementById("player").style.display = "block";
+  };
+  const des = () => {
+    player.destroy();
+  };
+  const test = () => {
+    player.setVideoAttr("playbackRate", 0.5, true);
+    // console.log(player.playingDom.src, player.playingDom.paused);
+  };
+</script>
+
 </html>
