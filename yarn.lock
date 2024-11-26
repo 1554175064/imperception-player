@@ -1833,10 +1833,10 @@ util-deprecate@^1.0.2:
   resolved "https://registry.npmmirror.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
-video-green-screen-processing@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/video-green-screen-processing/-/video-green-screen-processing-1.2.2.tgz#2ae886df81f063a9be39d4330241e1418e12ac99"
-  integrity sha512-2iDsOWYpbVWIOIRad5Au28hnnvCi72ThlhIXRqikRtt1yW7d094ZbdNX01kZ3bUxMPXfGZtXIY3EOuxUGaor0g==
+video-green-screen-processing@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/video-green-screen-processing/-/video-green-screen-processing-1.2.3.tgz#b9f095c27820cb5043dfaedd8781ac295f9035ac"
+  integrity sha512-nukV7bEY2d0TL9Rjj7ef5F2tvRrpIEFOrxK4Qsq6JsSu1XhOOWa5pl+bhnk9F70IWhBEZtgio7tPCXo1jQ4eYA==
   dependencies:
     babel-preset-es2015 "^6.24.1"
     ncp "^2.0.0"
