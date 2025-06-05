@@ -39,6 +39,8 @@ interface IOption {
     //扣绿后画板分辨率倍率（适当调整，过高会有问题）
     pixelRatio: number
   };
+  //是否将视频地址转换成blob再播放，默认true（可以解决部分移动端浏览器捕获视频资源问题，但会提高每次切换延迟，如果不涉及移动端可以自行取消）
+  isUrlToBlob?: boolean;
 }
 
 /**

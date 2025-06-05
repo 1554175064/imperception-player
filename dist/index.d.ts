@@ -15,6 +15,7 @@ interface IOption {
         videoGreenCutoutColor: number | string;
         pixelRatio: number;
     };
+    isUrlToBlob?: boolean;
 }
 interface IVideo extends HTMLVideoElement {
     url?: string;
@@ -36,6 +37,7 @@ declare class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     private userHasInteracted;
     private cacheArr;
     private abortController;
+    private isUrlToBlob;
     playingDom: null | IVideo;
     private addVideoStyle;
     private endedFinish;

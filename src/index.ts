@@ -20,6 +20,7 @@ interface IOption {
     videoGreenCutoutColor: number | string;
     pixelRatio: number
   };
+  isUrlToBlob?: boolean;
 }
 function detectWebGL() {
   // 尝试获取标准的 WebGL 上下文。如果失败，回退到试验性上下文。
@@ -88,6 +89,7 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
   private userHasInteracted = false; //用户是否与浏览器交互过，用来自动播放
   private cacheArr: [T, IVideo[T]][] = [];
   private abortController: AbortController | null = null; // AbortController实例
+  private isUrlToBlob: boolean = true; //是否需要将url转为blob
   playingDom: null | IVideo; //当前正在播放的dom
 
   //给视频标签添加样式和属性
@@ -116,16 +118,22 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
   }
   //指定播放器切换视频
   private async videoSetUrl(video: IVideo, url: string) {
-    // 如果有未完成的请求，取消它
-    if (this.abortController) {
-      this.abortController.abort();
-    }
-    // 创建新的AbortController实例
-    this.abortController = new AbortController();
-    const blobUrl = await urlToBlob(url, this.abortController.signal);
-    if (blobUrl) {
+    if (this.isUrlToBlob) {
+      // 如果有未完成的请求，取消它
+      if (this.abortController) {
+        this.abortController.abort();
+      }
+      // 创建新的AbortController实例
+      this.abortController = new AbortController();
+      const blobUrl = await urlToBlob(url, this.abortController.signal);
+      if (blobUrl) {
+        video.muted = true;
+        video.src = blobUrl;
+        video.url = url;
+      }
+    } else {
       video.muted = true;
-      video.src = blobUrl;
+      video.src = url;
       video.url = url;
     }
   }
@@ -198,10 +206,10 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     const loadedmetadata = () => {
       console.log("loadedmetadata");
       this.cacheArr.forEach((item) => {
-        this.video1[item[0]] = item[1];
+        video1[item[0]] = item[1];
       });
     };
-    this.video1.addEventListener("loadedmetadata", loadedmetadata);
+    video1.addEventListener("loadedmetadata", loadedmetadata);
     return () => {
       video1.removeEventListener("timeupdate", timeupdate);
       //这个触发播放的时机特别严苛
@@ -298,6 +306,9 @@ class ImperceptionPlayer<T extends WritableKeysOfHTMLVideoElement> {
     this.destroy();
     this.defaultUrl = options.defaultUrl;
     this.onVideoEnded = options.onVideoEnded;
+    if (options.isUrlToBlob === false) {
+      this.isUrlToBlob = options.isUrlToBlob;
+    }
     this.video1 = this.createVideo("video1");
     this.video2 = this.createVideo("video2");
     //如果开启了扣绿功能
